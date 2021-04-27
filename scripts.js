@@ -6,7 +6,7 @@
 let snakeDotsPosition = 
 [  
     snakeBlock = {
-        x: 0,
+        x: 20,
         y: 0
     },
     snakeBlock = {
@@ -14,7 +14,7 @@ let snakeDotsPosition =
         y: 0
     },
     snakeBlock = {
-        x: 20,
+        x: 0,
         y: 0
     },
    
@@ -27,13 +27,14 @@ let direction = [10, 0];
 let appleColision = false;
 let appleX = 10;
 let appleY = 145;
+let round = 0;
 
 let canvas = document.getElementById('screen');
 canvasContext = canvas.getContext('2d');
 
 //========================================Grid==============================================
 
-function drawGrid(context, color, stepx, stepy) {
+const drawGrid = (context, color, stepx, stepy) => {
     context.beginPath();
     context.strokeStyle = color;
     context.lineWidth = 0.5;
@@ -53,14 +54,15 @@ function drawGrid(context, color, stepx, stepy) {
 
 //===================================ClearScreen===============================================
 
-function clearScreen(){
+const clearScreen = () => {
     canvasContext.fillStyle = "#fff";
     canvasContext.fillRect(0, 0, window.innerWidth, window.innerHeight);
 }
 
 //=====================================SnakeAdvance============================================
 
-function snakeMovement(){
+const snakeMovement = () =>{
+
     let newBlock = {
         x: snakeDotsPosition[0].x + direction[0],
         y: snakeDotsPosition[0].y + direction[1],
@@ -71,8 +73,15 @@ function snakeMovement(){
     if(newBlock.x < 0) newBlock.x = 290;
     if(newBlock.y < 0) newBlock.y = 145;
 
+    for(let i = 0; i < snakeLength; i++){
+        if(newBlock.x == snakeDotsPosition[i].x && newBlock.y == snakeDotsPosition[i].y && round > 0){
+           gameOver();
+        }
+    }
+
     snakeDotsPosition.unshift(newBlock);
     snakeDotsPosition.pop();
+    
     
 }
 //==================================SnakeDirection============================================
@@ -103,8 +112,16 @@ const drawSnake = (snakeBlock) =>canvasContext.fillRect(snakeBlock.x, snakeBlock
 
 //=================================SnakeCollision===============================================
 
-const checkSnakeCollision = () => {
-    
+const gameOver = () => {
+    alert('Perdeu');
+    clearScreen();
+   
+    for(let i = 3; i <  snakeLength; i++){
+        snakeDotsPosition.pop();
+    }
+
+    snakeLength = 3;
+   
 }
 
 //===================================Apple=====================================================
@@ -120,7 +137,6 @@ const appleDraw =() => canvasContext.fillRect(appleX, appleY, blockwidth, blockh
 
 const checkAppleCollision = () => {
     
-
     if(appleX == snakeDotsPosition[0].x && appleY == snakeDotsPosition[0].y){
         
         let newSnakeBlock = {
@@ -132,9 +148,7 @@ const checkAppleCollision = () => {
         snakeLength++;
         appleColision = true;
     } 
-    
 }
-
 
 //======================================Main=========================================
 function loop(){
@@ -148,10 +162,10 @@ function loop(){
         canvasContext.fillStyle = "#000";
         snakeMovement();
         snakeDotsPosition.forEach(drawSnake);
+        round++;
         appleDraw();
         drawGrid(canvasContext, "#fff", 10, 5);
         checkAppleCollision();
-        checkSnakeCollision();
         loop()
     }, 100);
 }
